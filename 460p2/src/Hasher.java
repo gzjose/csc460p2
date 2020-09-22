@@ -210,14 +210,10 @@ public class Hasher {
 		int sum = 0;
 		int bucketval = 0;
 		for(int i = 0 ; i < f; i++) {
-			if(i % this.bucketSize == 0) {
+			if(i == 0) {
 				numofbuckets++;
-				bucketval = 0;
-				System.out.println("++++++++");
-			}
-			int currId = idxFile.readInt();
-			int currFP = idxFile.readInt();
-			if( currId == -1) {
+			}else if(i % this.bucketSize == 0 & i != 0) {
+				numofbuckets++;
 				if(bucketval < min) {
 					min = bucketval;
 				}
@@ -225,8 +221,14 @@ public class Hasher {
 					max = bucketval;
 				}
 				sum += bucketval;
-				System.out.println("[]");
+				
 				bucketval = 0;
+				System.out.println("++++++++");
+			}
+			int currId = idxFile.readInt();
+			int currFP = idxFile.readInt();
+			if( currId == -1) {
+				System.out.println("[]");
 			}else {
 				bucketval++;
 				System.out.println("["+currId+ ","+currFP+"]");
