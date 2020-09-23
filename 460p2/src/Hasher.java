@@ -19,18 +19,45 @@ public class Hasher {
 	private long fileSize;
 	
 	
-	
-	public Hasher(int bucketSize, int entrySize){
+    /*---------------------------------------------------------------------
+    |  Method Hasher
+    |
+    |  Purpose:  This method constructs the hasher object as well as the
+    		.idx file that we will be using to store the hashed values.
+    		By taking in the bucketsize as well as the size of the entries
+    		we can fill the .idx file with empty values represented by -1
+    		so that the file will be the proper initial size.
+    |
+    |  Pre-condition:  there is a binary file that this is gonna get its 
+    		values from.
+    |
+    |  Post-condition: the idx file is large enough to hold the max amount
+    		of values before rehashing.
+    |
+    |  Parameters:
+    |      bucketSize -- the max amount of entries that will be in each bucket
+    |      entrySize -- the lengths the values needs to be to make a record
+    |	   
+    |
+    |  Returns:  None
+    *-------------------------------------------------------------------*/
+    
+	public Hasher(int bucketSize){
 		this.bucketSize = bucketSize;
-		this.entrySize = entrySize * 4;
-		this.H = 0;
+		this.entrySize = 8; // the size of the idex entry (the id value and a pointer to where it is in the file)
+		
+		
+		this.H = 0;   //sets the H value to be used in future hashing
+		
 		try {
-	        File fileRef = new File("lhl.idx");
-	      	if(fileRef.exists()) {
+	        File fileRef = new File("lhl.idx"); //creates the lhl.idx file that will be holding the indecies
+	      
+	        if(fileRef.exists()) { // resents the file
 	    		fileRef.delete();
 	    	}
 			this.idxFile = new RandomAccessFile("lhl.idx","rw");
-			setupFile(2);
+			
+			setupFile(2); //sets the intial amount of buckets and value spaces into the file
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -38,7 +65,7 @@ public class Hasher {
 		}
 		
 		try {
-			this.fileSize = this.idxFile.length();
+			this.fileSize = this.idxFile.length(); // sets the size of the file
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -46,6 +73,25 @@ public class Hasher {
 
 	}
 	
+    /*---------------------------------------------------------------------
+    |  Method setupFile
+    |
+    |  Purpose:  This method appends empty index values to the end of the 
+   			
+    |
+    |  Pre-condition:  there is a binary file that this is gonna get its 
+    		values from.
+    |
+    |  Post-condition: the idx file is large enough to hold the max amount
+    		of values before rehashing.
+    |
+    |  Parameters:
+    |      bucketSize -- the max amount of entries that will be in each bucket
+    |      entrySize -- the lengths the values needs to be to make a record
+    |	   
+    |
+    |  Returns:  None
+    *-------------------------------------------------------------------*/
 	private void setupFile(long size) {
 		try {
 			this.idxFile.seek(this.idxFile.length());
@@ -56,7 +102,7 @@ public class Hasher {
 			e.printStackTrace();
 		}
 		for(int i = 0; i < bucketSize*size; i++) {
-			for(int j = 0; j < (this.entrySize/4); j++) {
+			for(int j = 0; j < 2; j++) {
 				try {
 					this.idxFile.writeInt(-1);
 				} catch (IOException e) {
@@ -239,6 +285,8 @@ public class Hasher {
 		System.out.println("MAX: " + max);
 		System.out.println("MIN: " + min);
 		System.out.println("MEAN: " + (sum / numofbuckets));
+		
+		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -246,7 +294,19 @@ public class Hasher {
 		
 	}
 	
+	public void closeHash() {
 
+		try {
+			this.idxFile.seek(this.idxFile.length());
+			this.idxFile.writeInt(this.bucketSize);
+			this.idxFile.writeInt(this.H);
+			this.idxFile.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	
 

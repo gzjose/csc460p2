@@ -8,7 +8,7 @@ public class Prog21 {
 	public static void main(String[] args) {
 		RandomAccessFile records;
       	
-      	Hasher hash = new Hasher(3,2);
+      	Hasher hash = new Hasher(50);
       	int[] lengths = new int[6];
     
       	try {
@@ -33,8 +33,14 @@ public class Prog21 {
             	i++;
             }
             hash.bucketStats();
+            hash.closeHash();
             
-
+            records = new RandomAccessFile("lhl.idx","r");
+            records.seek(records.length()-8);
+            
+            System.out.println(records.readInt());
+            System.out.println(records.readInt());
+            records.close();
 
             
        
